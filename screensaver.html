@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>屏保</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        canvas {
+            background: #000;
+            /* overflow: hidden; */
+        }
+    </style>
+</head>
+
+<body>
+    <canvas></canvas>
+</body>
+<script>
+    let oC = document.querySelector('canvas');
+    let winW = oC.width = document.documentElement.clientWidth;
+    let winH = oC.height = document.documentElement.clientHeight;
+    let o2d = oC.getContext('2d'); //画笔对象
+
+    // 随机数据
+    function rnd(n, m) {
+        return parseInt(Math.random() * (m - n) + n);
+    }
+    //随机颜色
+    function rgb() {
+        var a = parseInt(Math.random() * 255)
+        var b = parseInt(Math.random() * 255)
+        var c = parseInt(Math.random() * 255)
+        return (a + ',' + b + ',' + c)
+    }
+
+    var aPoint = []; //构造一个空数组 [{x,y,iSpeedX,iSpeedY},{}]
+    var n = 10; // 设置数组内元素个数
+
+    var tail = 50; //尾巴个数
+    var oldArr = []; //尾巴数组[{},{}]
+
+
+    for (var i = 0; i < n; i++) { //填充数组
+        aPoint[i] = {
+            x: rnd(0, winW),
+            y: rnd(0, winH),
+            speedX: rnd(-6, 6), //速度随机
+            speedY: rnd(-6, 6),
+        };
+    }
+    setInterval(function() {
+        o2d.beginPath();
+        var cLine = o2d.strokeStyle = 'rgb(' + rgb() + ')';
+        var cTail = cLine.split('(')[1].split(')')[0];
+        setInterval(function() {
+            o2d.clearRect(0, 0, winW, winH);
+
+            //画点
+            for (var i = 0; i < aPoint.length; i++) {
+                aPoint[i].x += aPoint[i].speedX; // 坐标随时变化
+                aPoint[i].y += aPoint[i].speedY;
+                //边界限定
+                if (aPoint[i].x <= 0) {
+                    aPoint[i].x = 0;
+                    aPoint[i].speedX *= -1;
+                }
+                if (aPoint[i].x >= winW) {
+                    aPoint[i].x = winW;
+                    aPoint[i].speedX *= -1;
+                }
+                if (aPoint[i].y <= 0) {
+                    aPoint[i].y = 0;
+                    aPoint[i].speedY *= -1;
+                }
+                if (aPoint[i].y >= winH) {
+                    aPoint[i].y = winH;
+                    aPoint[i].speedY *= -1;
+                }
+                //画点
+                drawPoint(aPoint[i]);
+            }
+
+            // 画线
+            o2d.moveTo(aPoint[0].x, aPoint[0].y);
+            for (var i = 1; i < aPoint.length; i++) {
+                o2d.lineTo(aPoint[i].x, aPoint[i].y)
+            }
+            o2d.closePath();
+            o2d.stroke();
+
+            //画尾巴
+            var arr = [];
+            for (var i = 0; i < aPoint.length; i++) {
+                arr[i] = { //手机当前点的集合到arr数组里
+                    x: aPoint[i].x,
+                    y: aPoint[i].y,
+                }
+            }
+            oldArr.push(arr); // 每收集一个丢到尾巴对象里
+            if (oldArr.length > tail) {
+                oldArr.shift(); //shift() 删除数组的第一个元素,移除数组末尾元素可用 pop()
+            }
+            //绘制尾巴
+            for (var i = 0; i < oldArr.length; i++) {
+                o2d.beginPath();
+                var opacity = i / oldArr.length; // 尾巴透明度调整
+                o2d.strokeStyle = 'rgba(' + cTail + ',' + opacity + ')';
+                o2d.moveTo(oldArr[0].x, oldArr[0].y);
+                for (var j = 0; j < oldArr[i].length; j++) {
+                    o2d.lineTo(oldArr[i][j].x, oldArr[i][j].y)
+                }
+                o2d.closePath();
+                o2d.stroke();
+            }
+        }, 20);
+    }, 3000);
+
+    //画点
+    function drawPoint(p) {
+        var pW = 1;
+        var pH = 1;
+        o2d.fillStyle = 'white';
+        o2d.fillRect(p.x - pW / 2, p.y - pH / 2, pW, pH);
+    }
+</script>
+
+</html>
