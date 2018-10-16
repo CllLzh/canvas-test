@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>动画</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        canvas {
+            background: #cccccc;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas width="600" height="400"></canvas>
+</body>
+<script>
+    let oC = document.querySelector('canvas');
+    let o2d = oC.getContext('2d'); //画笔对象
+    let x = 0;
+    let speed = 1;
+    let t = setInterval(() => {
+        o2d.clearRect(0, 0, oC.width, oC.height);
+        x += speed;
+
+        if (x <= 0) {
+            x = 0;
+            speed *= -1;
+        }
+        if (x >= (oC.width - 100)) {
+            speed *= -1;
+        }
+        o2d.fillRect(x, 100, 100, 100);
+        // o2d.strokeRect(x, 100, 100, 100);
+    }, 16)
+</script>
+
+</html>
